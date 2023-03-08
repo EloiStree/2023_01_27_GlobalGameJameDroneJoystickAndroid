@@ -15,14 +15,20 @@ public class FetchJoystickUIMono : MonoBehaviour
 
     public bool m_inverse;
 
-    public void SetDefaultMove(bool setAsDefaultMode) {
+    public void SetDefaultMove(bool setAsDefaultMode)
+    {
 
         m_inverse = !setAsDefaultMode;
+    }
+    public void SetDefaultMoveAsInversed(bool setAsInverse)
+    {
+
+        m_inverse = setAsInverse;
     }
 
     void Update()
     {
-        if (m_inverse)
+        if (!m_inverse)
         {
             if (joystickLeft.Direction.x != m_leftRight)
             {
