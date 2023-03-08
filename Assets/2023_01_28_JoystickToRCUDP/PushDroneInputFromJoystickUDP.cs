@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
-using UDPPusherOmiDLL;
 using UnityEngine;
 using System;
 
@@ -16,6 +15,8 @@ public class PushDroneInputFromJoystickUDP : MonoBehaviour
     public float m_downUpPercent;
     public float m_backFrontPercent;
     public float m_leftRightRotationPercent;
+    [Range(0f,1f)]
+    public float m_generalSensibilityInPercent=1f;
 
     public void SetServerIP(string ip) { m_ipOfServer = ip; }
     public void SetServerPort(string port) {if(! int.TryParse(port, out m_portOfServer))m_portOfServer=2509; }
@@ -37,8 +38,9 @@ public class PushDroneInputFromJoystickUDP : MonoBehaviour
             yield return new WaitForSeconds(m_timeBetweenPushToUdp);
             if (m_hadChanged)
             {
+                float s = m_generalSensibilityInPercent;
                 m_hadChanged = true;
-                string cmd = string.Format("rc {0:0.00} {1:0.00} {2:0.00} {3:0.00}", m_leftRightPercent, m_backFrontPercent, m_leftRightRotationPercent, m_downUpPercent);
+                string cmd = string.Format("rc {0:0.00} {1:0.00} {2:0.00} {3:0.00}", m_leftRightPercent * s, m_backFrontPercent * s, m_leftRightRotationPercent * s, m_downUpPercent * s);
                 try
                 {
                     DroneUDPToClients.SendUdp(m_ipOfServer, m_portOfServer, cmd);
@@ -48,6 +50,10 @@ public class PushDroneInputFromJoystickUDP : MonoBehaviour
             }
         }
     
+    }
+    public void SetGeneralSpeedSensibility(float speedPercent) {
+
+        m_generalSensibilityInPercent = speedPercent;
     }
 
 
@@ -118,6 +124,16 @@ public class PushDroneInputFromJoystickUDP : MonoBehaviour
                 m_destinationSock.SendTo(Encoding.Unicode.GetBytes(message), m_destinationEndPoint);
             }
 
+        }
+        
+        [System.Serializable]
+        public class UDPTargetParams {
+            public string m_ipAddress;
+            public int m_ipPort;
+            public void SetWith(string ipAddress, int port) {
+                m_ipPort = port;
+                m_ipAddress = ipAddress;
+            }
         }
     }
 }
